@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.silentshutter.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.silentshutter.app'
+        // 무선 디버깅(페어링 코드)은 Android 11부터 지원됩니다.
+        minSdk 30
+        targetSdk 35
+        versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '1')
+        versionName System.getenv('VERSION_NAME') ?: '1.0.0'
+    }
+
+    signingConfigs {
+        release {
+            def ks = System.getenv('SIGNING_KEYSTORE_PATH')
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('SIGNING_STORE_PASSWORD')
+                keyAlias System.getenv('SIGNING_KEY_ALIAS')
+                keyPassword System.getenv('SIGNING_KEY_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig System.getenv('SIGNING_KEYSTORE_PATH') ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/versions/9/OSGI-INF/MANIFEST.MF', 'META-INF/DEPENDENCIES']
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.github.MuntashirAkon:libadb-android:3.1.1'
+    implementation 'org.conscrypt:conscrypt-android:2.5.3'
+    implementation 'org.bouncycastle:bcpkix-jdk15to18:1.81'
+    implementation 'androidx.annotation:annotation:1.9.1'
+}
